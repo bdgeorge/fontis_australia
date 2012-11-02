@@ -109,21 +109,23 @@ try {
 // Check if our LOAD DATA method worked (may not work in some environments)
 if(!$success) {
     // Attempt to load the rows one at a time; this is slower but should work in all cases
+  $postcodefile = dirname(__FILE__) . '/postcodes.txt'; 
     $fp = fopen($postcodefile, 'r');
 
     $_values = '';
     $i =0;
-    while ($row = fgets($fp)) {
-        if($i++==0){
-            $_values = trim($row);
-        } else {
-            $_values = $_values . ", " . trim($row);
-        }
+  while ($row = fgets($fp)) {
+      if($i++==0){
+          $_values = trim($row);
+      } else {
+          $_values = $_values . ", " . trim($row);
+      }
+  
+  }
+    $_sql = "INSERT INTO {$this->getTable('australia_postcode')} (postcode, city, region_code) VALUES ". $_values . ";";
 
-    }
-    
     // Import all values in a single expression and commit, _much_ faster and avoids timeouts on shared hosting accounts
-    $installer->run("INSERT INTO {$this->getTable('au_postcode')} (postcode, city, region_code) VALUES ". $_values . ";");
+    $installer->run($_sql);
 
     fclose($fp);
 }
